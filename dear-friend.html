@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Dear Friend</title>
+<meta name="description" content="A small, handmade page about friendship.">
+<meta name="theme-color" content="#241726">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500;1,9..144,600&family=Work+Sans:wght@300;400;500;600&family=Caveat:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#241726;
+    --bg-soft:#2c1b30;
+    --cream:#fbf3e7;
+    --muted:#c9b6c7;
+    --coral:#ff8b6b;
+    --gold:#f3c15f;
+    --sage:#9cb380;
+    --line: rgba(251,243,231,0.14);
+    --display: 'Fraunces', serif;
+    --body: 'Work Sans', sans-serif;
+    --script: 'Caveat', cursive;
+  }
+
+  *{ box-sizing: border-box; }
+
+  html{ scroll-behavior: smooth; }
+  @media (prefers-reduced-motion: reduce){
+    html{ scroll-behavior: auto; }
+  }
+
+  body{
+    margin:0;
+    background: var(--bg);
+    color: var(--cream);
+    font-family: var(--body);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+
+  ::selection{ background: var(--coral); color: var(--bg); }
+
+  a{ color: inherit; }
+
+  .page{ position: relative; }
+
+  /* grain texture, subtle, above everything */
+  .grain{
+    position: fixed; inset: 0; z-index: 60; pointer-events: none;
+    opacity: 0.035; mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  /* thread layer */
+  .thread-layer{
+    position: absolute; inset: 0; height: 100%; z-index: 1; pointer-events: none;
+  }
+  .thread-layer svg{ width: 100%; height: 100%; display:block; }
+  .thread{ fill:none; stroke-linecap: round; }
+  #threadA{ stroke: var(--coral); stroke-width: 2.4; opacity: .55; filter: drop-shadow(0 0 7px rgba(255,139,107,.35)); }
+  #threadB{ stroke: var(--gold); stroke-width: 2.4; opacity: .5; filter: drop-shadow(0 0 7px rgba(243,193,95,.3)); }
+  .knot{ fill: var(--cream); opacity: .75; transform-box: fill-box; transform-origin: center; transition: transform .5s cubic-bezier(.2,.8,.2,1), opacity .5s ease, fill .5s ease; }
+  .knot.active{ fill: var(--gold); opacity: 1; transform: scale(1.7); }
+
+  section, header, footer.section{ position: relative; z-index: 2; }
+
+  .section{
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: clamp(4rem, 10vw, 8rem) clamp(1.5rem, 5vw, 2.5rem);
+  }
+
+  .eyebrow{
+    font-family: var(--body);
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--coral);
+    margin: 0 0 1.1rem;
+  }
+
+  h1, h2{ font-family: var(--display); font-weight: 500; margin: 0; }
+
+  /* ---------- hero ---------- */
+  .hero{
+    min-height: 100svh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    padding-top: 6rem;
+    padding-bottom: 4rem;
+  }
+  .hero-inner{ max-width: 760px; }
+  .hero-inner > *{ opacity: 0; animation: riseIn .9s cubic-bezier(.2,.8,.2,1) forwards; }
+  .hero-inner > *:nth-child(1){ animation-delay: .05s; }
+  .hero-inner > *:nth-child(2){ animation-delay: .25s; }
+  .hero-inner > *:nth-child(3){ animation-delay: .45s; }
+  .hero-inner > *:nth-child(4){ animation-delay: .7s; }
+  @keyframes riseIn{ from{ opacity:0; transform: translateY(26px);} to{ opacity:1; transform:none; } }
+  @media (prefers-reduced-motion: reduce){
+    .hero-inner > *{ animation: none; opacity: 1; }
+  }
+
+  .hero-line{
+    font-size: clamp(2.6rem, 7vw, 5.2rem);
+    font-style: italic;
+    font-weight: 500;
+    line-height: 1.05;
+    letter-spacing: -0.01em;
+    margin-bottom: 1.6rem;
+  }
+  .name-blank{
+    display: inline-block;
+    min-width: 2ch;
+    color: var(--gold);
+    border-bottom: 3px solid var(--coral);
+    padding: 0 0.08em 0.04em;
+    outline: none;
+  }
+  .name-blank:empty:before{
+    content: attr(data-placeholder);
+    opacity: .38;
+    font-style: italic;
+  }
+  .name-blank:focus{ border-bottom-color: var(--gold); }
+
+  .hero-sub{
+    font-size: clamp(1.05rem, 2vw, 1.25rem);
+    color: var(--muted);
+    max-width: 46ch;
+    font-weight: 300;
+  }
+
+  .scroll-cue{
+    margin-top: clamp(3rem, 8vw, 5rem);
+    display: inline-flex;
+    align-items: center;
+    gap: .6rem;
+    font-size: .8rem;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .scroll-cue svg{ animation: bob 1.8s ease-in-out infinite; }
+  @keyframes bob{ 0%,100%{ transform: translateY(0);} 50%{ transform: translateY(6px);} }
+  @media (prefers-reduced-motion: reduce){ .scroll-cue svg{ animation: none; } }
+
+  /* ---------- means section ---------- */
+  .means-head{ max-width: 640px; margin-bottom: clamp(2.5rem, 6vw, 4rem); }
+  .means-head h2{ font-size: clamp(1.9rem, 4vw, 2.7rem); line-height: 1.2; }
+
+  .cards{ display: flex; flex-direction: column; gap: clamp(1.4rem, 4vw, 2.2rem); }
+  .card{
+    max-width: 520px;
+    padding: 1.9rem 2.1rem;
+    background: rgba(251,243,231,0.045);
+    border: 1px solid var(--line);
+    border-radius: 28px 28px 28px 6px;
+    backdrop-filter: blur(6px);
+    font-family: var(--display);
+    font-size: clamp(1.15rem, 2.3vw, 1.4rem);
+    font-weight: 400;
+    line-height: 1.4;
+    opacity: 0; transform: translateY(28px);
+    transition: opacity .7s ease, transform .7s cubic-bezier(.2,.8,.2,1), transform .3s ease;
+  }
+  .card.in-view{ opacity: 1; transform: translateY(0); }
+  .card:nth-child(even){ align-self: flex-end; border-radius: 28px 28px 6px 28px; text-align: right; }
+  @media (max-width: 720px){
+    .card{ align-self: center !important; text-align: left !important; max-width: 100%; }
+  }
+
+  /* ---------- moments section ---------- */
+  .moments-head{ max-width: 640px; margin-bottom: clamp(2.2rem, 5vw, 3rem); }
+  .moments-head h2{ font-size: clamp(1.9rem, 4vw, 2.7rem); }
+  .strip{
+    display: flex;
+    gap: 1.4rem;
+    overflow-x: auto;
+    scroll-snap-type: x proximity;
+    padding: .6rem .2rem 1.6rem;
+    margin: 0 -0.2rem;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    cursor: grab;
+  }
+  .strip.dragging{ cursor: grabbing; scroll-snap-type: none; }
+  .strip::-webkit-scrollbar{ display: none; }
+  .moment-card{
+    flex: 0 0 auto;
+    width: min(72vw, 300px);
+    height: 360px;
+    border-radius: 26px;
+    scroll-snap-align: start;
+    position: relative;
+    overflow: hidden;
+    opacity: 0; transform: translateY(24px) scale(.97);
+    transition: opacity .7s ease, transform .7s cubic-bezier(.2,.8,.2,1);
+  }
+  .moment-card.in-view{ opacity: 1; transform: none; }
+  .moment-card span{
+    position: absolute; left: 0; right: 0; bottom: 0;
+    padding: 1.4rem 1.3rem 1.3rem;
+    background: linear-gradient(0deg, rgba(20,10,22,.82), rgba(20,10,22,0));
+    font-family: var(--display); font-style: italic; font-size: 1.08rem; line-height: 1.35;
+  }
+  .m1{ background: linear-gradient(155deg, #ff8b6b, #7a3a4a); }
+  .m2{ background: linear-gradient(155deg, #f3c15f, #a85a3a); }
+  .m3{ background: linear-gradient(155deg, #9cb380, #33502f); }
+  .m4{ background: linear-gradient(155deg, #c98bd9, #4a2456); }
+  .m5{ background: linear-gradient(155deg, #f3c15f, #ff8b6b); }
+  .m6{ background: linear-gradient(155deg, #7a8bd9, #2c1b30); }
+
+  /* ---------- letter section ---------- */
+  .letter-head{ text-align: center; max-width: 520px; margin: 0 auto clamp(2.2rem, 5vw, 3rem); }
+  .letter-head h2{ font-size: clamp(1.7rem, 3.6vw, 2.3rem); }
+  .letter-hint{ margin-top: .6rem; font-size: .85rem; color: var(--muted); letter-spacing: .04em; }
+
+  .envelope{
+    max-width: 560px; margin: 0 auto;
+    position: relative;
+    perspective: 1400px;
+  }
+  .envelope-back{
+    position: relative;
+    background: linear-gradient(160deg, rgba(255,255,255,.07), rgba(255,255,255,.02));
+    border: 1px solid var(--line);
+    border-radius: 28px 28px 28px 6px;
+    overflow: hidden;
+    min-height: 440px;
+  }
+  .envelope-flap{
+    position: absolute; top: 0; left: 0; width: 100%; height: 54%;
+    background: linear-gradient(135deg, var(--coral), var(--gold));
+    clip-path: polygon(0 0, 100% 0, 50% 100%);
+    transform-origin: top center;
+    transition: transform .9s cubic-bezier(.22,1,.36,1);
+    z-index: 3;
+  }
+  .envelope.open .envelope-flap{ transform: rotateX(-150deg); }
+  .seal{
+    position: absolute; top: 40%; left: 50%; transform: translate(-50%,-50%);
+    width: 62px; height: 62px; border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, var(--gold), #a86a1f 72%);
+    box-shadow: 0 6px 16px rgba(0,0,0,.4);
+    border: none; z-index: 4; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--display); font-style: italic; font-size: 1.5rem; color: var(--bg);
+    transition: transform .5s ease, opacity .5s ease;
+  }
+  .seal:focus-visible{ outline: 2px solid var(--cream); outline-offset: 3px; }
+  .envelope.open .seal{ transform: translate(-50%,-50%) scale(1.5) rotate(18deg); opacity: 0; pointer-events: none; }
+  .letter-content{
+    position: relative; z-index: 1;
+    padding: clamp(3rem, 8vw, 4rem) clamp(1.8rem, 5vw, 2.6rem) 2.4rem;
+    opacity: 0; transform: translateY(22px);
+    transition: opacity .7s ease .2s, transform .7s ease .2s;
+  }
+  .envelope.open .letter-content{ opacity: 1; transform: none; }
+  .letter-content p{
+    font-family: var(--script);
+    font-size: clamp(1.35rem, 3vw, 1.7rem);
+    line-height: 1.55;
+    color: var(--cream);
+    margin: 0 0 1.1rem;
+  }
+  .letter-sign{ margin-top: 1.6rem; opacity: .85; }
+
+  /* ---------- closing ---------- */
+  .closing{ text-align: center; padding-top: clamp(3rem, 8vw, 6rem); padding-bottom: clamp(4rem, 10vw, 7rem); }
+  .closing h2{
+    font-size: clamp(1.9rem, 5vw, 3.1rem);
+    font-style: italic;
+    max-width: 16ch;
+    margin: 0 auto 2.2rem;
+    line-height: 1.2;
+  }
+  .cta{
+    display: inline-block;
+    border: 2px solid var(--gold);
+    color: var(--gold);
+    border-radius: 999px;
+    padding: .95rem 2.1rem;
+    font-family: var(--body); font-weight: 500; font-size: .95rem;
+    text-decoration: none;
+    letter-spacing: .02em;
+    transition: background .3s ease, color .3s ease, transform .3s ease;
+  }
+  .cta:hover{ background: var(--gold); color: var(--bg); transform: translateY(-2px); }
+  .cta:focus-visible{ outline: 2px solid var(--cream); outline-offset: 4px; }
+  .credit{ margin-top: 2.6rem; font-size: .82rem; color: var(--muted); }
+
+  .reveal{ opacity: 0; transform: translateY(20px); transition: opacity .7s ease, transform .7s cubic-bezier(.2,.8,.2,1); }
+  .reveal.in-view{ opacity: 1; transform: none; }
+
+  :focus-visible{ outline: 2px solid var(--gold); outline-offset: 3px; }
+</style>
+</head>
+<body>
+
+<div class="grain"></div>
+
+<div class="page">
+
+  <div class="thread-layer" aria-hidden="true">
+    <svg id="threadSvg">
+      <path id="threadA" class="thread"></path>
+      <path id="threadB" class="thread"></path>
+      <circle id="knot-means" class="knot" r="6"></circle>
+      <circle id="knot-moments" class="knot" r="6"></circle>
+      <circle id="knot-letter" class="knot" r="6"></circle>
+      <circle id="knot-closing" class="knot" r="7"></circle>
+    </svg>
+  </div>
+
+  <header class="section hero">
+    <div class="thread-anchor" data-x="0.5" style="position:absolute; top:0; height:1px;"></div>
+    <div class="hero-inner">
+      <p class="eyebrow">a letter, mostly</p>
+      <h1 class="hero-line">Dear <span id="nameBlank" class="name-blank" contenteditable="true" role="textbox" aria-label="Type your friend's name" data-placeholder="you"></span>,</h1>
+      <p class="hero-sub">I don't say this enough, so I built a whole page to say it properly: thank you for being exactly the kind of friend that makes ordinary days worth talking about.</p>
+      <div class="scroll-cue">
+        <span>follow the thread</span>
+        <svg width="14" height="18" viewBox="0 0 14 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M7 1V17M7 17L1 11M7 17L13 11" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+    </div>
+  </header>
+
+  <section class="section" data-knot="means">
+    <div class="thread-anchor" data-x="0.24" data-knot="means" style="position:absolute; height:1px;"></div>
+    <div class="means-head reveal">
+      <p class="eyebrow">some things I've learned</p>
+      <h2>What this actually is, once you strip away the cards and the emojis</h2>
+    </div>
+    <div class="cards">
+      <div class="card">It's the friend who remembers the small thing you mentioned once, three months ago.</div>
+      <div class="card">It's showing up on the boring Tuesdays, not just the birthdays.</div>
+      <div class="card">It's laughing so hard at a joke that only makes sense to the two of us.</div>
+      <div class="card">It's the comfortable kind of quiet, when neither of us needs to fill it.</div>
+      <div class="card">It's knowing exactly when to send the meme, and exactly when to just call.</div>
+    </div>
+  </section>
+
+  <section class="section" data-knot="moments">
+    <div class="thread-anchor" data-x="0.76" data-knot="moments" style="position:absolute; height:1px;"></div>
+    <div class="moments-head reveal">
+      <p class="eyebrow">a few we'd replay on loop</p>
+      <h2>Moments, in no particular order</h2>
+    </div>
+    <div class="strip" id="momentsStrip">
+      <div class="moment-card m1"><span>The 2am phone call that started as a question and ended as a two-hour conversation</span></div>
+      <div class="moment-card m2"><span>The trip we almost didn't take</span></div>
+      <div class="moment-card m3"><span>That entire car ride, singing the wrong lyrics with total confidence</span></div>
+      <div class="moment-card m4"><span>Getting lost on purpose, because neither of us wanted to check the map</span></div>
+      <div class="moment-card m5"><span>The silence right after the good news, before either of us could speak</span></div>
+      <div class="moment-card m6"><span>Every plan that fell apart and somehow turned into the better one</span></div>
+    </div>
+    <p class="letter-hint reveal" style="margin-top:.4rem;">swap these for six of your own — a caption is all each card needs</p>
+  </section>
+
+  <section class="section" data-knot="letter">
+    <div class="thread-anchor" data-x="0.3" data-knot="letter" style="position:absolute; height:1px;"></div>
+    <div class="letter-head reveal">
+      <p class="eyebrow">okay, one more thing</p>
+      <h2>A letter, sealed</h2>
+      <p class="letter-hint">tap the seal to open it</p>
+    </div>
+    <div class="envelope" id="envelope">
+      <div class="envelope-back">
+        <div class="letter-content" id="letterContent">
+          <p>There isn't really a good way to measure a friendship, but if there were, I think it would count things like this: the calls that ran too long, the plans that changed a dozen times and somehow still happened, the version of me that only shows up around you.</p>
+          <p>I don't know what I did to deserve a friend like <span class="friend-name">friend</span>, but I'm not going to question it. Thank you for sticking around.</p>
+          <p class="letter-sign">— always</p>
+        </div>
+        <div class="envelope-flap"></div>
+        <button class="seal" id="sealBtn" aria-expanded="false" aria-controls="letterContent" aria-label="Open the letter">&amp;</button>
+      </div>
+    </div>
+  </section>
+
+  <footer class="section closing" data-knot="closing">
+    <div class="thread-anchor" data-x="0.5" data-knot="closing" style="position:absolute; height:1px;"></div>
+    <h2 class="reveal">However far, however long — I'm just a call away.</h2>
+    <a class="cta reveal" href="mailto:?subject=Right%20back%20at%20you&body=I%20just%20got%20the%20nicest%20page%20from%20a%20friend%2C%20and%20I%20wanted%20to%20say%20it%20right%20back...">Write back</a>
+    <p class="credit reveal">made with care, for <span class="friend-name">friend</span> · <span id="year"></span></p>
+  </footer>
+
+</div>
+
+<script>
+(function(){
+  // ---------- name binding ----------
+  const nameEl = document.getElementById('nameBlank');
+  const friendNameEls = document.querySelectorAll('.friend-name');
+  function updateName(){
+    const val = nameEl.textContent.trim();
+    const display = val || 'friend';
+    friendNameEls.forEach(el => el.textContent = display);
+  }
+  nameEl.addEventListener('input', updateName);
+  nameEl.addEventListener('keydown', e => { if(e.key === 'Enter'){ e.preventDefault(); nameEl.blur(); } });
+  nameEl.addEventListener('paste', e => {
+    e.preventDefault();
+    const text = (e.clipboardData || window.clipboardData).getData('text').replace(/\n/g,'').slice(0,24);
+    document.execCommand('insertText', false, text);
+  });
+  updateName();
+
+  document.getElementById('year').textContent = new Date().getFullYear();
+
+  // ---------- reveal on scroll ----------
+  const revealObserver = new IntersectionObserver(entries => {
+    entries.forEach(en => {
+      if(en.isIntersecting){ en.target.classList.add('in-view'); revealObserver.unobserve(en.target); }
+    });
+  }, { threshold: 0.2 });
+  document.querySelectorAll('.card, .moment-card, .reveal').forEach(el => revealObserver.observe(el));
+
+  // ---------- active section -> knot ----------
+  const knotSections = document.querySelectorAll('[data-knot]');
+  const knotObserver = new IntersectionObserver(entries => {
+    entries.forEach(en => {
+      const knot = document.getElementById('knot-' + en.target.dataset.knot);
+      if(knot) knot.classList.toggle('active', en.isIntersecting);
+    });
+  }, { threshold: 0.5 });
+  knotSections.forEach(s => knotObserver.observe(s));
+
+  // ---------- card tilt (fine pointer only) ----------
+  if(window.matchMedia('(hover: hover) and (pointer: fine)').matches){
+    document.querySelectorAll('.card').forEach(card => {
+      card.addEventListener('mousemove', e => {
+        const r = card.getBoundingClientRect();
+        const px = (e.clientX - r.left) / r.width - 0.5;
+        const py = (e.clientY - r.top) / r.height - 0.5;
+        card.style.transform = `perspective(700px) rotateX(${(-py*8).toFixed(2)}deg) rotateY(${(px*10).toFixed(2)}deg) translateY(-4px)`;
+      });
+      card.addEventListener('mouseleave', () => { card.style.transform = ''; });
+    });
+  }
+
+  // ---------- envelope ----------
+  const envelope = document.getElementById('envelope');
+  const seal = document.getElementById('sealBtn');
+  seal.addEventListener('click', () => {
+    const isOpen = envelope.classList.toggle('open');
+    seal.setAttribute('aria-expanded', isOpen);
+  });
+
+  // ---------- moments strip: drag (mouse) + wheel ----------
+  const strip = document.getElementById('momentsStrip');
+  let isDown = false, startX = 0, startScroll = 0;
+  strip.addEventListener('pointerdown', e => {
+    if(e.pointerType !== 'mouse') return;
+    isDown = true;
+    strip.setPointerCapture(e.pointerId);
+    startX = e.clientX; startScroll = strip.scrollLeft;
+    strip.classList.add('dragging');
+  });
+  strip.addEventListener('pointermove', e => {
+    if(!isDown) return;
+    strip.scrollLeft = startScroll - (e.clientX - startX);
+  });
+  ['pointerup','pointercancel','pointerleave'].forEach(evt => {
+    strip.addEventListener(evt, () => { isDown = false; strip.classList.remove('dragging'); });
+  });
+  strip.addEventListener('wheel', e => {
+    if(Math.abs(e.deltaY) > Math.abs(e.deltaX)){
+      strip.scrollLeft += e.deltaY;
+      e.preventDefault();
+    }
+  }, { passive: false });
+
+  // ---------- the thread ----------
+  const svg = document.getElementById('threadSvg');
+  const pathA = document.getElementById('threadA');
+  const pathB = document.getElementById('threadB');
+  const page = document.querySelector('.page');
+  const anchorEls = Array.from(document.querySelectorAll('.thread-anchor'));
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  let W = 0, H = 0, anchors = [], samples = [];
+  const STEP = 90;
+
+  function measure(){
+    W = window.innerWidth;
+    H = page.scrollHeight;
+    svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+    anchors = anchorEls.map(el => {
+      const rect = el.getBoundingClientRect();
+      const y = rect.top + window.scrollY;
+      const xf = parseFloat(el.dataset.x || '0.5');
+      return { y, xf, knot: el.dataset.knot };
+    }).sort((a,b) => a.y - b.y);
+    buildSamples();
+    anchorEls.forEach((el, i) => {
+      const id = el.dataset.knot;
+      if(!id) return;
+      const knot = document.getElementById('knot-' + id);
+      const a = anchors.find(x => x.knot === id);
+      if(knot && a) knot.dataset.y = a.y;
+    });
+  }
+
+  function buildSamples(){
+    samples = [];
+    if(anchors.length < 2) return;
+    for(let i=0;i<anchors.length-1;i++){
+      const a = anchors[i], b = anchors[i+1];
+      const dist = Math.max(b.y - a.y, 1);
+      const steps = Math.max(Math.round(dist/STEP), 1);
+      for(let s=0; s<steps; s++){
+        const t = s/steps;
+        samples.push({ y: a.y + dist*t, xf: a.xf + (b.xf - a.xf)*t, seed: (i*100+s)*0.65 });
+      }
+    }
+    const last = anchors[anchors.length-1];
+    samples.push({ y: last.y, xf: last.xf, seed: samples.length*0.65 });
+  }
+
+  function catmullRom(points){
+    if(points.length < 2) return '';
+    let d = `M ${points[0].x.toFixed(1)} ${points[0].y.toFixed(1)}`;
+    for(let i=0;i<points.length-1;i++){
+      const p0 = points[i-1] || points[i];
+      const p1 = points[i];
+      const p2 = points[i+1];
+      const p3 = points[i+2] || p2;
+      const c1x = p1.x + (p2.x - p0.x)/6, c1y = p1.y + (p2.y - p0.y)/6;
+      const c2x = p2.x - (p3.x - p1.x)/6, c2y = p2.y - (p3.y - p1.y)/6;
+      d += ` C ${c1x.toFixed(1)} ${c1y.toFixed(1)}, ${c2x.toFixed(1)} ${c2y.toFixed(1)}, ${p2.x.toFixed(1)} ${p2.y.toFixed(1)}`;
+    }
+    return d;
+  }
+
+  let phase = 0, energy = 0.4, lastScrollY = window.scrollY, lastT = performance.now();
+  const AMP = () => Math.min(W*0.05, 34);
+  const TWIST = () => Math.min(W*0.02, 14);
+
+  function frame(t){
+    const dt = Math.min((t - lastT)/1000, 0.05); lastT = t;
+    phase += dt * 0.5;
+    energy = Math.max(energy * (1 - dt*1.8), 0);
+    const amp = AMP() * (0.55 + energy);
+    const twist = TWIST();
+
+    const ptsA = samples.map(s => ({ x: s.xf*W + Math.sin(phase + s.seed)*amp, y: s.y }));
+    const ptsB = samples.map(s => ({ x: s.xf*W + Math.sin(phase*1.07 + s.seed + 1.4)*amp + Math.sin(s.y*0.01 + phase*0.6)*twist, y: s.y }));
+
+    pathA.setAttribute('d', catmullRom(ptsA));
+    pathB.setAttribute('d', catmullRom(ptsB));
+
+    anchorEls.forEach(el => {
+      const id = el.dataset.knot;
+      if(!id) return;
+      const knot = document.getElementById('knot-' + id);
+      if(!knot) return;
+      const y = parseFloat(knot.dataset.y || 0);
+      const xf = parseFloat(el.dataset.x || 0.5);
+      knot.setAttribute('cy', y.toFixed(1));
+      knot.setAttribute('cx', (xf*W + Math.sin(phase)*amp*0.6).toFixed(1));
+    });
+
+    if(!reduceMotion) requestAnimationFrame(frame);
+  }
+
+  function onScroll(){
+    const y = window.scrollY;
+    energy = Math.min(energy + Math.abs(y - lastScrollY)*0.004, 1.6);
+    lastScrollY = y;
+
+    const max = Math.max(page.scrollHeight - window.innerHeight, 1);
+    const frac = Math.min(Math.max(y/max, 0), 1);
+    const lenA = pathA.getTotalLength ? pathA.getTotalLength() : 0;
+    const lenB = pathB.getTotalLength ? pathB.getTotalLength() : 0;
+    if(lenA){ pathA.style.strokeDasharray = lenA; pathA.style.strokeDashoffset = lenA*(1-frac); }
+    if(lenB){ pathB.style.strokeDasharray = lenB; pathB.style.strokeDashoffset = lenB*(1-frac); }
+  }
+
+  let resizeTimer;
+  window.addEventListener('resize', () => { clearTimeout(resizeTimer); resizeTimer = setTimeout(measure, 200); });
+  window.addEventListener('scroll', onScroll, { passive: true });
+
+  function init(){
+    measure();
+    if(reduceMotion){
+      const ptsA = samples.map(s => ({ x: s.xf*W, y: s.y }));
+      pathA.setAttribute('d', catmullRom(ptsA));
+      const ptsB = samples.map(s => ({ x: s.xf*W + Math.sin(s.y*0.01)*TWIST(), y: s.y }));
+      pathB.setAttribute('d', catmullRom(ptsB));
+    } else {
+      frame(performance.now());
+    }
+    onScroll();
+  }
+
+  if(document.fonts && document.fonts.ready){
+    document.fonts.ready.then(() => setTimeout(init, 50));
+  } else {
+    window.addEventListener('load', init);
+  }
+  window.addEventListener('load', () => setTimeout(measure, 400));
+})();
+</script>
+
+</body>
+</html>
