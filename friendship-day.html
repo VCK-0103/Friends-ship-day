@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Friendship Day — Transmission 08.02</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;600;700;800;900&family=Sora:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --void:#07050f;
+    --deep:#170f38;
+    --deep2:#20124a;
+    --pink:#ff3cac;
+    --cyan:#22e8d8;
+    --gold:#ffb84d;
+    --paper:#f4efff;
+    --muted:#a99fcf;
+    --line: rgba(244,239,255,0.14);
+    --bar-h: 4.2vh;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--void);
+    color:var(--paper);
+    font-family:'Sora',sans-serif;
+    overflow-x:hidden;
+    -webkit-font-smoothing:antialiased;
+  }
+  ::selection{ background:var(--pink); color:var(--void); }
+
+  /* film grain + vignette, global */
+  .grain{
+    position:fixed; inset:0; z-index:60; pointer-events:none;
+    opacity:.05; mix-blend-mode:overlay;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  }
+  .vignette{
+    position:fixed; inset:0; z-index:59; pointer-events:none;
+    background:radial-gradient(120% 90% at 50% 45%, transparent 40%, rgba(4,2,12,.75) 100%);
+  }
+
+  /* letterbox */
+  .bar{
+    position:fixed; left:0; right:0; height:var(--bar-h);
+    background:#020106; z-index:70; pointer-events:none;
+  }
+  .bar.top{top:0; border-bottom:1px solid rgba(255,184,77,.35);}
+  .bar.bottom{bottom:0; border-top:1px solid rgba(255,184,77,.35);}
+  .bar span{
+    position:absolute; top:50%; transform:translateY(-50%);
+    font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:.18em;
+    color:var(--gold); opacity:.7; white-space:nowrap;
+  }
+  .bar.top span.l{left:18px;}
+  .bar.top span.r{right:18px;}
+  .bar.bottom span.l{left:18px;}
+  .bar.bottom span.r{right:18px;}
+
+  main{ padding-top:var(--bar-h); padding-bottom:var(--bar-h); }
+
+  a{color:inherit;}
+
+  /* header */
+  header.top-nav{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:22px clamp(18px,4vw,48px) 0;
+  }
+  .wordmark{
+    font-family:'Unbounded',sans-serif; font-weight:700; font-size:13px;
+    letter-spacing:.14em; text-transform:uppercase;
+  }
+  .wordmark b{ color:var(--pink); font-weight:800; }
+  .timecode{
+    font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--cyan);
+    letter-spacing:.08em; display:flex; align-items:center; gap:10px;
+  }
+  .timecode .dot{ width:6px;height:6px;border-radius:50%;background:var(--pink); box-shadow:0 0 8px var(--pink); animation:blink 1.6s infinite; }
+  @keyframes blink{ 50%{ opacity:.25; } }
+
+  /* HERO */
+  .hero{
+    position:relative; min-height:92vh; display:flex; flex-direction:column;
+    justify-content:flex-end; overflow:hidden; padding:0 0 60px;
+  }
+  .stage{
+    position:absolute; inset:0; z-index:1;
+    background:
+      radial-gradient(60% 50% at 30% 20%, rgba(34,232,216,.16), transparent 60%),
+      radial-gradient(55% 45% at 78% 30%, rgba(255,60,172,.18), transparent 60%),
+      radial-gradient(90% 70% at 50% 100%, var(--deep2), var(--void) 70%);
+  }
+  .sweep{
+    position:absolute; inset:-10% -50%; z-index:2; pointer-events:none;
+    background:linear-gradient(100deg, transparent 40%, rgba(255,255,255,.09) 48%, rgba(34,232,216,.14) 50%, transparent 58%);
+    transform:translateX(-60%);
+    animation:sweep 2.6s ease-out .2s 1;
+  }
+  @keyframes sweep{ to{ transform:translateX(60%); } }
+
+  .fig-layer{ position:absolute; z-index:3; will-change:transform; }
+  .fig-layer svg{ width:100%; height:100%; overflow:visible; display:block; }
+  .bone{ stroke:var(--cyan); stroke-width:2.4; fill:none; stroke-linecap:round; }
+  .bone.warm{ stroke:var(--pink); }
+  .joint{ fill:var(--paper); }
+  .joint.head{ fill:var(--gold); }
+  .fig-far{ filter:blur(1.5px) drop-shadow(0 0 10px rgba(34,232,216,.25)); opacity:.35; }
+  .fig-mid{ filter:blur(.4px) drop-shadow(0 0 14px rgba(34,232,216,.35)) drop-shadow(0 0 10px rgba(255,60,172,.2)); opacity:.62; }
+  .fig-near{ filter:drop-shadow(-6px 0 16px rgba(34,232,216,.55)) drop-shadow(8px 5px 20px rgba(255,60,172,.55)); opacity:1; }
+
+  .hero-content{ position:relative; z-index:5; padding:0 clamp(18px,5vw,60px); }
+  .eyebrow-row{ display:flex; align-items:center; gap:14px; margin-bottom:10px; }
+  .eyebrow{
+    font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:.22em;
+    color:var(--gold); border:1px solid rgba(255,184,77,.4); padding:5px 10px; border-radius:2px;
+  }
+  .eyebrow.rec{ color:var(--pink); border-color:rgba(255,60,172,.45); display:flex; align-items:center; gap:6px;}
+  .eyebrow.rec::before{ content:''; width:6px;height:6px;border-radius:50%;background:var(--pink); animation:blink 1.4s infinite; }
+
+  h1.headline{
+    font-family:'Unbounded',sans-serif; font-weight:900;
+    font-size:clamp(48px,11vw,148px); line-height:.88; letter-spacing:-.01em;
+    margin:0 0 18px; text-transform:uppercase;
+    background:linear-gradient(100deg,#fff 0%, var(--paper) 30%, var(--cyan) 55%, var(--pink) 85%);
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+  }
+  .headline small{
+    display:block; font-size:.32em; font-weight:600; letter-spacing:.3em;
+    -webkit-text-fill-color:var(--muted); color:var(--muted);
+  }
+  .hero-sub{
+    max-width:560px; font-size:clamp(15px,1.6vw,19px); color:var(--muted); line-height:1.6;
+    margin:0 0 34px;
+  }
+  .hero-actions{ display:flex; align-items:center; gap:22px; flex-wrap:wrap; }
+
+  .btn{
+    font-family:'Sora',sans-serif; font-weight:600; font-size:14px;
+    padding:15px 28px; border-radius:999px; border:none; cursor:pointer;
+    background:linear-gradient(100deg,var(--pink),var(--gold)); color:#160a12;
+    letter-spacing:.02em; transition:transform .25s ease, box-shadow .25s ease;
+    box-shadow:0 0 0 rgba(255,60,172,0);
+  }
+  .btn:hover{ transform:translateY(-2px); box-shadow:0 8px 30px rgba(255,60,172,.35); }
+  .btn:focus-visible{ outline:2px solid var(--cyan); outline-offset:3px; }
+  .btn.ghost{
+    background:transparent; color:var(--paper); border:1px solid var(--line);
+  }
+  .btn.ghost:hover{ border-color:var(--cyan); color:var(--cyan); box-shadow:0 0 24px rgba(34,232,216,.2); }
+
+  .slate{
+    position:absolute; left:clamp(18px,5vw,60px); bottom:22px; z-index:5;
+    font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--muted);
+    border:1px solid var(--line); padding:10px 14px; border-radius:3px;
+    background:rgba(7,5,15,.4); backdrop-filter:blur(6px);
+    display:none;
+  }
+  .corner{ position:absolute; width:26px; height:26px; z-index:6; opacity:.55; }
+  .corner::before,.corner::after{ content:''; position:absolute; background:var(--cyan); }
+  .corner.tl{ top:26px; left:26px; } .corner.tr{ top:26px; right:26px; }
+  .corner::before{ width:100%; height:2px; top:0; }
+  .corner::after{ width:2px; height:100%; left:0; }
+  .corner.tr::before{ background:var(--pink);} .corner.tr::after{ background:var(--pink); left:auto; right:0; }
+
+  .scroll-cue{
+    position:absolute; right:clamp(18px,5vw,60px); bottom:26px; z-index:5;
+    font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:.2em; color:var(--muted);
+    display:flex; flex-direction:column; align-items:center; gap:8px;
+  }
+  .scroll-cue .line{ width:1px; height:34px; background:linear-gradient(var(--cyan),transparent); animation:pulse-line 1.8s infinite; }
+  @keyframes pulse-line{ 0%,100%{opacity:.3;} 50%{opacity:1;} }
+
+  /* SECTION shared */
+  section{ padding:110px clamp(18px,5vw,60px); position:relative; }
+  .section-head{ max-width:680px; margin-bottom:56px; }
+  .kicker{
+    font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:.22em;
+    color:var(--cyan); text-transform:uppercase; display:block; margin-bottom:14px;
+  }
+  h2.section-title{
+    font-family:'Unbounded',sans-serif; font-weight:800; font-size:clamp(30px,4.4vw,54px);
+    line-height:1.05; margin:0 0 16px; text-transform:uppercase;
+  }
+  .section-title em{ font-style:normal; color:var(--pink); }
+  .section-desc{ color:var(--muted); font-size:16px; line-height:1.7; max-width:56ch; }
+
+  /* SCENES grid */
+  .scene-rail{
+    display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:20px;
+  }
+  .scene-card{
+    position:relative; border:1px solid var(--line); border-radius:10px;
+    padding:24px 20px 22px; background:linear-gradient(160deg, rgba(32,18,74,.55), rgba(7,5,15,.65));
+    overflow:hidden; transition:transform .35s ease, border-color .35s ease, box-shadow .35s ease;
+    min-height:340px; display:flex; flex-direction:column;
+  }
+  .scene-card::before{
+    content:''; position:absolute; inset:0; opacity:0; transition:opacity .35s ease;
+    background:radial-gradient(70% 60% at 50% 20%, rgba(34,232,216,.16), transparent 70%);
+  }
+  .scene-card:hover{ transform:translateY(-6px); border-color:rgba(34,232,216,.5); box-shadow:0 18px 50px rgba(0,0,0,.5); }
+  .scene-card:hover::before{ opacity:1; }
+  .scene-num{
+    font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--gold);
+    letter-spacing:.15em; display:flex; justify-content:space-between; align-items:center;
+    margin-bottom:6px; position:relative; z-index:2;
+  }
+  .scene-num .play{ opacity:0; transition:opacity .3s ease; color:var(--cyan); }
+  .scene-card:hover .scene-num .play{ opacity:1; }
+  .scene-stage{ position:relative; flex:1; min-height:170px; margin:6px 0 14px; }
+  .scene-stage svg{ width:100%; height:100%; overflow:visible; }
+  .scene-title{ font-family:'Unbounded',sans-serif; font-weight:700; font-size:17px; margin:0 0 8px; text-transform:uppercase; letter-spacing:.01em; }
+  .scene-cap{ color:var(--muted); font-size:13.5px; line-height:1.55; margin:0; position:relative; z-index:2; }
+
+  /* TRANSMISSION */
+  .transmission{
+    display:grid; grid-template-columns:1fr 1fr; gap:48px; align-items:start;
+  }
+  @media(max-width:900px){ .transmission{ grid-template-columns:1fr; } }
+  .form-field{ margin-bottom:18px; }
+  .form-field label{
+    display:block; font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:.16em;
+    color:var(--muted); text-transform:uppercase; margin-bottom:8px;
+  }
+  .form-field input, .form-field textarea{
+    width:100%; background:rgba(255,255,255,.03); border:1px solid var(--line); border-radius:6px;
+    color:var(--paper); font-family:'Sora',sans-serif; font-size:15px; padding:13px 14px;
+    resize:vertical; transition:border-color .25s ease, box-shadow .25s ease;
+  }
+  .form-field input:focus, .form-field textarea:focus{
+    outline:none; border-color:var(--cyan); box-shadow:0 0 0 3px rgba(34,232,216,.15);
+  }
+  .form-field textarea{ min-height:120px; }
+  .send-row{ display:flex; gap:14px; flex-wrap:wrap; margin-top:8px; }
+
+  .card-preview-wrap{ position:sticky; top:calc(var(--bar-h) + 20px); }
+  .tx-card{
+    position:relative; aspect-ratio:5/6; border-radius:16px; overflow:hidden;
+    background:
+      radial-gradient(90% 70% at 20% 0%, rgba(255,60,172,.35), transparent 60%),
+      radial-gradient(90% 70% at 90% 100%, rgba(34,232,216,.3), transparent 60%),
+      linear-gradient(160deg,#1b1140,#0a0618);
+    border:1px solid rgba(244,239,255,.18); box-shadow:0 30px 70px rgba(0,0,0,.55);
+    padding:30px; display:flex; flex-direction:column; justify-content:space-between;
+  }
+  .tx-card .scan{
+    position:absolute; inset:0; pointer-events:none; opacity:.15;
+    background:repeating-linear-gradient(0deg, #fff 0 1px, transparent 1px 3px);
+  }
+  .tx-top{ display:flex; justify-content:space-between; font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:.15em; color:var(--cyan); }
+  .tx-to{ font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--gold); letter-spacing:.1em; margin-top:20px; }
+  .tx-msg{
+    font-family:'Unbounded',sans-serif; font-weight:600; font-size:clamp(18px,2.6vw,26px);
+    line-height:1.3; color:var(--paper); margin-top:10px; word-break:break-word;
+  }
+  .tx-bottom{ display:flex; justify-content:space-between; align-items:flex-end; }
+  .tx-brand{ font-family:'Unbounded',sans-serif; font-weight:800; font-size:12px; letter-spacing:.12em; color:var(--paper); opacity:.75; }
+  .tx-date{ font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--muted); }
+  .beam{
+    position:absolute; left:50%; bottom:-4px; width:2px; height:0; background:linear-gradient(var(--cyan),transparent);
+    transform:translateX(-50%); pointer-events:none;
+  }
+  .beam.fire{ animation:beamfire .9s ease-out forwards; }
+  @keyframes beamfire{ 0%{ height:0; opacity:1;} 70%{ height:220px; opacity:1;} 100%{ height:260px; opacity:0;} }
+
+  /* countdown strip */
+  .countdown-strip{
+    display:flex; gap:14px; flex-wrap:wrap; margin-top:40px;
+  }
+  .cd-cell{
+    border:1px solid var(--line); border-radius:8px; padding:16px 18px; min-width:84px; text-align:center;
+    background:rgba(255,255,255,.02);
+  }
+  .cd-cell .n{ font-family:'JetBrains Mono',monospace; font-size:28px; color:var(--cyan); font-weight:700; }
+  .cd-cell .l{ font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:.15em; color:var(--muted); margin-top:4px; display:block; }
+
+  footer{
+    padding:60px clamp(18px,5vw,60px) 40px; border-top:1px solid var(--line);
+    display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:14px;
+  }
+  .foot-line{ font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--muted); letter-spacing:.08em; }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ animation-duration:.001ms !important; animation-iteration-count:1 !important; transition-duration:.001ms !important; }
+  }
+  @media(max-width:640px){
+    .hero{ min-height:100vh; }
+    section{ padding:70px 18px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="bar top">
+  <span class="l">FRIENDSHIP DAY · REEL 08.02</span>
+  <span class="r">CAM A · 24FPS</span>
+</div>
+<div class="bar bottom">
+  <span class="l">DIR. THE PEOPLE WHO SHOW UP</span>
+  <span class="r">RUNTIME ∞</span>
+</div>
+<div class="vignette"></div>
+<div class="grain"></div>
+
+<main>
+
+  <header class="top-nav">
+    <div class="wordmark">FRIEND<b>SHIP</b>·CO</div>
+    <div class="timecode"><span class="dot"></span><span id="clock">00:00:00:00</span></div>
+  </header>
+
+  <!-- HERO -->
+  <section class="hero" id="stage-hero" style="padding-left:0;padding-right:0;">
+    <div class="stage"></div>
+    <div class="sweep"></div>
+    <div class="corner tl"></div>
+    <div class="corner tr"></div>
+    <div id="figStage"></div>
+
+    <div class="hero-content">
+      <div class="eyebrow-row">
+        <span class="eyebrow rec">LIVE TRANSMISSION</span>
+        <span class="eyebrow">AUG · 02</span>
+      </div>
+      <h1 class="headline">Friendship<br><small>a story told in motion</small></h1>
+      <p class="hero-sub">Every friendship is a scene worth framing — the leap, the high five, the huddle in the rain. This year we're putting your people in the spotlight. Cue the lights.</p>
+      <div class="hero-actions">
+        <a href="#transmission" class="btn">Beam a message ▸</a>
+        <a href="#scenes" class="btn ghost">Watch the scenes</a>
+      </div>
+    </div>
+    <div class="scroll-cue"><span>SCROLL</span><span class="line"></span></div>
+  </section>
+
+  <!-- SCENES -->
+  <section id="scenes">
+    <div class="section-head">
+      <span class="kicker">Reel 01 — Coverage</span>
+      <h2 class="section-title">Six ways friendship <em>moves</em></h2>
+      <p class="section-desc">Motion-capture stills from the friendship archive — every pose a small piece of evidence that someone showed up.</p>
+    </div>
+    <div class="scene-rail" id="sceneRail"></div>
+  </section>
+
+  <!-- TRANSMISSION -->
+  <section id="transmission">
+    <div class="section-head">
+      <span class="kicker">Reel 02 — Direct Message</span>
+      <h2 class="section-title">Send your own <em>transmission</em></h2>
+      <p class="section-desc">Write a line to the friend who deserves the spotlight this year. Preview it live, then beam it — or save the card and send it yourself.</p>
+    </div>
+    <div class="transmission">
+      <div>
+        <div class="form-field">
+          <label for="txTo">Addressed to</label>
+          <input id="txTo" type="text" placeholder="e.g. Maya" maxlength="28">
+        </div>
+        <div class="form-field">
+          <label for="txMsg">Your message</label>
+          <textarea id="txMsg" maxlength="140" placeholder="Every scene is better with you in it.">Every scene is better with you in it.</textarea>
+        </div>
+        <div class="send-row">
+          <button class="btn" id="beamBtn" type="button">Beam Transmission ▸</button>
+          <button class="btn ghost" id="downloadBtn" type="button">Download card</button>
+        </div>
+      </div>
+      <div class="card-preview-wrap">
+        <div class="tx-card" id="txCard">
+          <div class="scan"></div>
+          <div class="beam" id="beamEl"></div>
+          <div class="tx-top"><span>TRANSMISSION</span><span id="txId">#0802</span></div>
+          <div>
+            <div class="tx-to" id="txToPreview">TO: A FRIEND</div>
+            <div class="tx-msg" id="txMsgPreview">Every scene is better with you in it.</div>
+          </div>
+          <div class="tx-bottom">
+            <span class="tx-brand">FRIENDSHIP·CO</span>
+            <span class="tx-date">08.02 · SIGNAL SENT</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="countdown-strip" id="countdown"></div>
+  </section>
+
+  <footer>
+    <div class="foot-line">© <span id="year"></span> FRIENDSHIP DAY TRANSMISSION — SHOT ON LOCATION, EVERYWHERE</div>
+    <div class="foot-line">FRAME 08/02 · THE STORY CONTINUES WITH YOU</div>
+  </footer>
+
+</main>
+
+<script>
+/* ---------- Motion-capture figure engine ---------- */
+const POSES = {
+  cheer: { head:[50,14],neck:[50,26],shL:[40,30],shR:[60,30],elL:[28,16],elR:[72,16],haL:[20,4],haR:[80,4],
+    hip:[50,70],hipL:[43,72],hipR:[57,72],knL:[36,100],knR:[66,96],ftL:[42,128],ftR:[74,118] },
+  reach: { head:[46,16],neck:[48,28],shL:[38,32],shR:[58,30],elL:[30,52],elR:[74,14],haL:[26,72],haR:[92,2],
+    hip:[48,72],hipL:[41,74],hipR:[55,72],knL:[30,104],knR:[68,98],ftL:[22,132],ftR:[82,126] },
+  embrace: { head:[46,14],neck:[48,26],shL:[36,30],shR:[58,32],elL:[26,44],elR:[76,48],haL:[34,54],haR:[84,58],
+    hip:[48,70],hipL:[41,72],hipR:[55,72],knL:[38,104],knR:[58,104],ftL:[36,132],ftR:[62,132] },
+  sprint: { head:[42,14],neck:[46,26],shL:[36,30],shR:[56,32],elL:[22,20],elR:[68,48],haL:[10,8],haR:[78,62],
+    hip:[48,70],hipL:[42,72],hipR:[56,72],knL:[28,92],knR:[70,94],ftL:[16,110],ftR:[84,124] },
+  twirl: { head:[50,12],neck:[50,26],shL:[30,28],shR:[70,28],elL:[12,26],elR:[88,26],haL:[0,22],haR:[100,22],
+    hip:[50,70],hipL:[44,72],hipR:[56,72],knL:[40,100],knR:[60,132],ftL:[38,130],ftR:[62,150] },
+  huddle: { head:[48,14],neck:[48,26],shL:[36,30],shR:[60,30],elL:[26,40],elR:[80,36],haL:[24,58],haR:[92,30],
+    hip:[48,70],hipL:[42,72],hipR:[56,72],knL:[40,104],knR:[58,104],ftL:[38,132],ftR:[60,132] }
+};
+const BONES = [
+  ['head','neck'],['neck','shL'],['neck','shR'],['shL','elL'],['elL','haL'],
+  ['shR','elR'],['elR','haR'],['neck','hip'],['hip','hipL'],['hip','hipR'],
+  ['hipL','knL'],['knL','ftL'],['hipR','knR'],['knR','ftR']
+];
+function figureSVG(poseKey, opts={}){
+  const p = POSES[poseKey];
+  const mirror = !!opts.mirror;
+  const warm = !!opts.warm;
+  const x = v => mirror ? (100 - v) : v;
+  let bones = '';
+  BONES.forEach(([a,b])=>{
+    const A = p[a], B = p[b];
+    bones += `<line class="bone${warm?' warm':''}" x1="${x(A[0])}" y1="${A[1]}" x2="${x(B[0])}" y2="${B[1]}" />`;
+  });
+  let joints = '';
+  Object.entries(p).forEach(([k,v])=>{
+    const r = k==='head' ? 6 : 3.1;
+    joints += `<circle class="joint${k==='head'?' head':''}" cx="${x(v[0])}" cy="${v[1]}" r="${r}" />`;
+  });
+  return `<svg viewBox="0 0 100 160" preserveAspectRatio="xMidYMid meet">${bones}${joints}</svg>`;
+}
+
+/* ---------- Hero collage layout ---------- */
+const heroLayout = [
+  { pose:'embrace', depth:'far',  top:'8%',  left:'2%',  w:'20%', rot:-8,  mirror:false },
+  { pose:'twirl',   depth:'far',  top:'6%',  left:'78%', w:'19%', rot:10,  mirror:true  },
+  { pose:'sprint',  depth:'mid',  top:'14%', left:'62%', w:'24%', rot:-4,  mirror:true  },
+  { pose:'huddle',  depth:'mid',  top:'10%', left:'14%', w:'23%', rot:6,   mirror:false },
+  { pose:'reach',   depth:'near', top:'2%',  left:'34%', w:'30%', rot:-3,  mirror:false },
+  { pose:'cheer',   depth:'near', top:'0%',  left:'58%', w:'26%', rot:5,   mirror:true  },
+];
+const figStage = document.getElementById('figStage');
+heroLayout.forEach((f,i)=>{
+  const div = document.createElement('div');
+  div.className = `fig-layer fig-${f.depth}`;
+  div.style.top = f.top; div.style.left = f.left; div.style.width = f.w; div.style.height = '70%';
+  div.style.transform = `rotate(${f.rot}deg)`;
+  div.dataset.depth = f.depth==='near'?18:(f.depth==='mid'?9:4);
+  div.innerHTML = figureSVG(f.pose,{mirror:f.mirror, warm:i%2===0});
+  figStage.appendChild(div);
+});
+
+/* parallax on mouse move (skip if reduced motion) */
+const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+if(!reduceMotion){
+  const heroEl = document.getElementById('stage-hero');
+  heroEl.addEventListener('mousemove', (e)=>{
+    const r = heroEl.getBoundingClientRect();
+    const px = (e.clientX - r.left)/r.width - 0.5;
+    const py = (e.clientY - r.top)/r.height - 0.5;
+    document.querySelectorAll('.fig-layer').forEach(el=>{
+      const d = parseFloat(el.dataset.depth);
+      el.style.marginLeft = (px*d)+'px';
+      el.style.marginTop = (py*d*0.6)+'px';
+    });
+  });
+}
+
+/* ---------- Scene cards ---------- */
+const SCENES = [
+  { pose:'reach',   title:'The High Five',   cap:'Timed perfectly, felt instantly. Zero rehearsal, full commitment.' },
+  { pose:'embrace', title:'The Hug Cut',     cap:'The scene everyone remembers — held two beats longer than expected.' },
+  { pose:'huddle',  title:'The Huddle',      cap:'Three shoulders, one plan, no script required.' },
+  { pose:'cheer',   title:'The Big Reveal',  cap:'Arms up before the good news even finishes leaving your mouth.' },
+  { pose:'twirl',   title:'The Victory Lap', cap:'Spun around just because the day called for it.' },
+  { pose:'sprint',  title:'Running Late, Together', cap:'Full sprint to catch the same train, laughing the whole way.' },
+];
+const rail = document.getElementById('sceneRail');
+SCENES.forEach((s,i)=>{
+  const card = document.createElement('div');
+  card.className = 'scene-card';
+  card.innerHTML = `
+    <div class="scene-num"><span>SCENE ${String(i+1).padStart(2,'0')}</span><span class="play">▸ PLAY</span></div>
+    <div class="scene-stage">${figureSVG(s.pose,{mirror:i%2===1, warm:i%2===0})}</div>
+    <h3 class="scene-title">${s.title}</h3>
+    <p class="scene-cap">${s.cap}</p>
+  `;
+  rail.appendChild(card);
+});
+
+/* ---------- Transmission card ---------- */
+const txTo = document.getElementById('txTo');
+const txMsg = document.getElementById('txMsg');
+const txToPreview = document.getElementById('txToPreview');
+const txMsgPreview = document.getElementById('txMsgPreview');
+const txId = document.getElementById('txId');
+
+function updatePreview(){
+  const to = txTo.value.trim();
+  txToPreview.textContent = 'TO: ' + (to ? to.toUpperCase() : 'A FRIEND');
+  txMsgPreview.textContent = txMsg.value.trim() || 'Every scene is better with you in it.';
+}
+txTo.addEventListener('input', updatePreview);
+txMsg.addEventListener('input', updatePreview);
+txId.textContent = '#' + Math.floor(1000+Math.random()*9000);
+
+document.getElementById('beamBtn').addEventListener('click', ()=>{
+  const beam = document.getElementById('beamEl');
+  beam.classList.remove('fire');
+  void beam.offsetWidth;
+  beam.classList.add('fire');
+  const btn = document.getElementById('beamBtn');
+  const original = btn.textContent;
+  btn.textContent = 'Signal sent ✓';
+  setTimeout(()=>{ btn.textContent = original; }, 1800);
+});
+
+/* download card as PNG via canvas */
+document.getElementById('downloadBtn').addEventListener('click', ()=>{
+  const w = 900, h = 1080;
+  const canvas = document.createElement('canvas');
+  canvas.width = w; canvas.height = h;
+  const ctx = canvas.getContext('2d');
+
+  const bg = ctx.createLinearGradient(0,0,w,h);
+  bg.addColorStop(0,'#1b1140'); bg.addColorStop(1,'#0a0618');
+  ctx.fillStyle = bg; ctx.fillRect(0,0,w,h);
+
+  const g1 = ctx.createRadialGradient(w*0.15,0,0,w*0.15,0,w*0.7);
+  g1.addColorStop(0,'rgba(255,60,172,0.35)'); g1.addColorStop(1,'rgba(255,60,172,0)');
+  ctx.fillStyle = g1; ctx.fillRect(0,0,w,h);
+  const g2 = ctx.createRadialGradient(w*0.9,h,0,w*0.9,h,w*0.7);
+  g2.addColorStop(0,'rgba(34,232,216,0.3)'); g2.addColorStop(1,'rgba(34,232,216,0)');
+  ctx.fillStyle = g2; ctx.fillRect(0,0,w,h);
+
+  ctx.strokeStyle = 'rgba(244,239,255,0.25)'; ctx.lineWidth = 2;
+  ctx.strokeRect(20,20,w-40,h-40);
+
+  ctx.fillStyle = '#22e8d8';
+  ctx.font = '600 20px monospace';
+  ctx.fillText('TRANSMISSION', 60, 90);
+  ctx.textAlign = 'right';
+  ctx.fillText(txId.textContent, w-60, 90);
+  ctx.textAlign = 'left';
+
+  ctx.fillStyle = '#ffb84d';
+  ctx.font = '600 22px monospace';
+  const toText = 'TO: ' + ((txTo.value.trim()||'A FRIEND').toUpperCase());
+  ctx.fillText(toText, 60, 220);
+
+  ctx.fillStyle = '#f4efff';
+  ctx.font = '700 44px sans-serif';
+  const msg = txMsg.value.trim() || 'Every scene is better with you in it.';
+  wrapText(ctx, msg, 60, 300, w-120, 56);
+
+  ctx.fillStyle = 'rgba(244,239,255,0.75)';
+  ctx.font = '700 18px sans-serif';
+  ctx.fillText('FRIENDSHIP · CO', 60, h-70);
+  ctx.textAlign = 'right';
+  ctx.fillStyle = '#a99fcf';
+  ctx.font = '15px monospace';
+  ctx.fillText('08.02 · SIGNAL SENT', w-60, h-70);
+
+  const link = document.createElement('a');
+  link.download = 'friendship-transmission.png';
+  link.href = canvas.toDataURL('image/png');
+  link.click();
+});
+
+function wrapText(ctx, text, x, y, maxWidth, lineHeight){
+  const words = text.split(' ');
+  let line = '';
+  for(let n=0;n<words.length;n++){
+    const test = line + words[n] + ' ';
+    if(ctx.measureText(test).width > maxWidth && n>0){
+      ctx.fillText(line, x, y);
+      line = words[n] + ' ';
+      y += lineHeight;
+    } else { line = test; }
+  }
+  ctx.fillText(line, x, y);
+}
+
+/* ---------- Countdown to next Aug 2 ---------- */
+function nextFriendshipDay(){
+  const now = new Date();
+  let target = new Date(now.getFullYear(), 7, 2, 0,0,0);
+  if(target < now){ target = new Date(now.getFullYear()+1, 7, 2, 0,0,0); }
+  return target;
+}
+const cdEl = document.getElementById('countdown');
+const cells = ['days','hrs','min','sec'].map(label=>{
+  const d = document.createElement('div');
+  d.className = 'cd-cell';
+  d.innerHTML = `<span class="n" id="cd-${label}">00</span><span class="l">${label.toUpperCase()}</span>`;
+  cdEl.appendChild(d);
+  return d;
+});
+function tickCountdown(){
+  const target = nextFriendshipDay();
+  const diff = Math.max(0, target - new Date());
+  const days = Math.floor(diff/864e5);
+  const hrs = Math.floor((diff%864e5)/36e5);
+  const min = Math.floor((diff%36e5)/6e4);
+  const sec = Math.floor((diff%6e4)/1000);
+  document.getElementById('cd-days').textContent = String(days).padStart(2,'0');
+  document.getElementById('cd-hrs').textContent = String(hrs).padStart(2,'0');
+  document.getElementById('cd-min').textContent = String(min).padStart(2,'0');
+  document.getElementById('cd-sec').textContent = String(sec).padStart(2,'0');
+}
+tickCountdown();
+setInterval(tickCountdown, 1000);
+
+/* header timecode clock */
+function tickClock(){
+  const now = new Date();
+  const f = n => String(n).padStart(2,'0');
+  document.getElementById('clock').textContent = `${f(now.getHours())}:${f(now.getMinutes())}:${f(now.getSeconds())}:${f(Math.floor(now.getMilliseconds()/42))}`;
+}
+tickClock();
+setInterval(tickClock, 90);
+
+document.getElementById('year').textContent = new Date().getFullYear();
+</script>
+</body>
+</html>
